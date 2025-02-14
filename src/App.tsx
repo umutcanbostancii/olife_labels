@@ -10,6 +10,10 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 );
 
+// Debug için environment variables'ları kontrol et
+console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+console.log('Supabase Key:', import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0, 10) + '...');
+
 function App() {
   const [data, setData] = useState<CompanyData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -90,15 +94,21 @@ function App() {
 
   const fetchData = async () => {
     try {
+      console.log('Fetching data...');
       const { data: companies, error } = await supabase
         .from('companies')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error details:', error);
+        throw error;
+      }
+      
+      console.log('Fetched data:', companies);
       setData(companies || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Detailed error:', error);
       toast.error('Error fetching data');
     }
   };
